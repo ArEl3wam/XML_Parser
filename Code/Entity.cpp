@@ -35,6 +35,212 @@ void XmlParser::deleteNewLines() {
         currentLine = "";
     }
 }
+string XmlParser::BiToHex(string s) {
+    vector<string>chars = splitter(s, 5);
+    string hex = "";
+    for (string i : chars) {
+        if (i == "00000") {
+            hex += '0';
+        }
+        else if (i == "00001") {
+            hex += '1';
+        }
+        else if (i == "00010") {
+            hex += '2';
+        }
+        else if (i == "00011") {
+            hex += '3';
+        }
+        else if (i == "00100") {
+            hex += '4';
+        }
+        else if (i == "00101") {
+            hex += '5';
+        }
+        else if (i == "00110") {
+            hex += '6';
+        }
+        else if (i == "00111") {
+            hex += '7';
+        }
+        else if (i == "01000") {
+            hex += '8';
+        }
+        else if (i == "01001") {
+            hex += '9';
+        }
+        else if (i == "01010") {
+            hex += 'A';
+        }
+        else if (i == "01011") {
+            hex += 'B';
+        }
+        else if (i == "01100") {
+            hex += 'C';
+        }
+        else if (i == "01101") {
+            hex += 'D';
+        }
+        else if (i == "01110") {
+            hex += 'E';
+        }
+        else if (i == "01111") {
+            hex += 'F';
+        }
+        else if (i == "10000") {
+            hex += 'G';
+        }
+        else if (i == "10001") {
+            hex += 'H';
+        }
+        else if (i == "10010") {
+            hex += 'I';
+        }
+        else if (i == "10011") {
+            hex += 'J';
+        }
+        else if (i == "10100") {
+            hex += 'K';
+        }
+        else if (i == "10101") {
+            hex += 'L';
+        }
+        else if (i == "10110") {
+            hex += 'M';
+        }
+        else if (i == "10111") {
+            hex += 'N';
+        }
+        else if (i == "11000") {
+            hex += 'O';
+        }
+        else if (i == "11001") {
+            hex += 'P';
+        }
+        else if (i == "11010") {
+            hex += 'Q';
+        }
+        else if (i == "11011") {
+            hex += 'R';
+        }
+        else if (i == "11100") {
+            hex += 'S';
+        }
+        else if (i == "11101") {
+            hex += 'T';
+        }
+        else if (i == "11110") {
+            hex += 'U';
+        }
+        else if (i == "11111") {
+            hex += 'V';
+        }
+    }
+    return hex;
+}
+string XmlParser::HexToBi(string s) {
+    string bi = "";
+    for (char i : s) {
+        if (i == '0') {
+            bi += "00000";
+        }
+        else if (i == '1') {
+            bi += "00001";
+        }
+        else if (i == '2') {
+            bi += "00010";
+        }
+        else if (i == '3') {
+            bi += "00011";
+        }
+        else if (i == '4') {
+            bi += "00100";
+        }
+        else if (i == '5') {
+            bi += "00101";
+        }
+        else if (i == '6') {
+            bi += "00110";
+        }
+        else if (i == '7') {
+            bi += "00111";
+        }
+        else if (i == '8') {
+            bi += "01000";
+        }
+        else if (i == '9') {
+            bi += "01001";
+        }
+        else if (i == 'A') {
+            bi += "01010";
+        }
+        else if (i == 'B') {
+            bi += "01011";
+        }
+        else if (i == 'C') {
+            bi += "01100";
+        }
+        else if (i == 'D') {
+            bi += "01101";
+        }
+        else if (i == 'E') {
+            bi += "01110";
+        }
+        else if (i == 'F') {
+            bi += "01111";
+        }
+        else if (i == 'G') {
+            bi += "10000";
+        }
+        else if (i == 'H') {
+            bi += "10001";
+        }
+        else if (i == 'I') {
+            bi += "10010";
+        }
+        else if (i == 'J') {
+            bi += "10011";
+        }
+        else if (i == 'K') {
+            bi += "10100";
+        }
+        else if (i == 'L') {
+            bi += "10101";
+        }
+        else if (i == 'M') {
+            bi += "10110";
+        }
+        else if (i == 'N') {
+            bi += "10111";
+        }
+        else if (i == 'O') {
+            bi += "11000";
+        }
+        else if (i == 'P') {
+            bi += "11001";
+        }
+        else if (i == 'Q') {
+            bi += "11010";
+        }
+        else if (i == 'R') {
+            bi += "11011";
+        }
+        else if (i == 'S') {
+            bi += "11100";
+        }
+        else if (i == 'T') {
+            bi += "11101";
+        }
+        else if (i == 'U') {
+            bi += "11110";
+        }
+        else if (i == 'V') {
+            bi += "11111";
+        }
+    }
+    return bi;
+}
+
 void XmlParser::extractData() {
     vector<Post> posts;
     vector<Follower> followers;
