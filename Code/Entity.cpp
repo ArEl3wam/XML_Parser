@@ -1,4 +1,30 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include "Entity.h"
+using namespace std;
+using namespace Entity;
+typedef unsigned long long ull;
+#define USER_ID 0
+#define FOLLOWER_ID 1
+#define NAME 2
+#define BODY 3
+#define TOPICS 4
+#define FOLLOWERS 5
+#define POSTS 6
+#define MAXASCII 256
 
+// for color coding
+#define ID_COLOR 0
+#define USER_COLOR 1
+#define USERS_COLOR 2
+#define FOLLOWER_COLOR 3
+#define FOLLOWERS_COLOR 4
+#define POST_COLOR 5
+#define POSTS_COLOR 6
+#define NAME_COLOR 7
+#define TOPIC_COLOR 8
+#define TOPICS_COLOR 9
+#define BODY_COLOR 10
 
 
 
@@ -610,4 +636,45 @@ void XmlParser::fillColors() {
             colors[target].push_back(createPair(start, end));
         }
     }
+}
+string XmlParser::getTagFrame(string& xml, int& pointer) {
+    string tagFrame;
+    tagFrame.push_back('<');
+    ++pointer;
+    for (pointer;
+        !(xml[pointer] == '>' && (pointer == 0 || xml[pointer - 1] != '\\' || (pointer >= 2 && xml[pointer - 1] == '\\' && xml[pointer - 2] == '\\')))
+        ; ++pointer)
+        tagFrame.push_back(xml[pointer]);
+    tagFrame.push_back('>');
+    return tagFrame;
+}
+string XmlParser::trimLine(string input) {
+    for (int i = 0; i < input.size() && input[i] == ' ';)
+        input.erase(i, 1);
+    for (int i = input.size() - 1; i >= 0 && input[i] == ' '; --i)
+    {
+        input.erase(i, 1);
+    }
+    return input;
+}
+void XmlParser::checkStack() {
+    while (!tagStack.empty()) {
+        auto stackTop = tagStack.top();
+        errors.push_back(stackTop.second);
+        tagStack.pop();
+    }
+}
+string XmlParser::getData(string& xml, int& counter) {
+    string data;
+    while (!(xml[counter] == '<' && (counter == 0 || xml[counter - 1] != '\\' || (counter >= 2 && xml[counter - 1] == '\\' && xml[counter - 2] == '\\')))
+        ) {
+        data.push_back(xml[counter]);
+        ++counter;
+    }
+    return data;
+}
+void XmlParser::setXml(string& xml)
+{
+    xml.erase(std::remove(xml.begin(), xml.end(), '\r'), xml.end());
+    this->xml = xml;
 }
