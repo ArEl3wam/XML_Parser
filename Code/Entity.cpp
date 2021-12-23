@@ -266,7 +266,159 @@ string XmlParser::HexToBi(string s) {
     }
     return bi;
 }
+XmlParser::Node::Node(int freq, string c, Node* left, Node* right) {
+    this->freq = freq;
+    this->c = c;
+    this->right = right;
+    this->left = left;
+}
+XmlParser::Node::~Node() {
+    delete[] right;
+    delete[] left;
+}
+bool XmlParser::compare::operator()(const Node* l, const Node* r)const {
+    return l->freq > r->freq;
+}
+XmlParser::Node* XmlParser::huffman() {
+    Node* l, * r;
+    while (pq.size() > 1) {
+        l = pq.top();
+        pq.pop();
+        r = pq.top();
+        pq.pop();
+        Node* newnode = new Node(l->freq + r->freq, l->c + r->c, l, r);
+        pq.push(newnode);
+    }
+    return pq.top();
+}
 
+XmlParser::Node* XmlParser::TreeMaker(int freq[]) {
+    while (!pq.empty()) {
+        pq.pop();
+    }
+    string temp;
+    for (int i = 0; i < MAXASCII; i++) {
+        if (freq[i]) {
+            temp = char(i);
+            pq.push(new Node(freq[i], temp, nullptr, nullptr));
+        }
+    }
+    Node* tree = huffman();
+    return tree;
+}
+void XmlParser::leafCoding(Node* tree, string code) {
+    if (tree == NULL) return;
+    if (tree->c.size() == 1) {
+        myPair<string,string> p(tree->c, code);
+        pairs.push_back(p);
+    }
+    leafCoding(tree->left, code + '0');
+    leafCoding(tree->right, code + '1');
+}
+bool XmlParser::compareByLength(const myPair<string,string>& a, const myPair<string,string>& b) {
+    return a.second.size() < b.second.size();
+}
+void XmlParser::sortingTree() {
+    sort(pairs.begin(), pairs.end(), &compareByLength);
+}
+string XmlParser::EncryptData(int freq[], string data) {
+    string codedData = "";
+    for (int i = 0; i < 256; i++) {
+        if (freq[i]) {
+            codedData += (char)i;
+            codedData += "|";
+            codedData += to_string(freq[i]);
+            codedData += "/";
+        }
+    }
+    codedData += "$$";
+    int localcnt = 0;
+    string zerosOnes = "";
+    for (int i = 0; i < data.size(); i++) {
+        string currentchar(1, data[i]);
+        for (int j = 0; j < pairs.size(); j++) {
+            if (currentchar == pairs[j].first) {
+                zerosOnes += pairs[j].second;
+                break;
+            }
+        }
+    }
+    while (zerosOnes.size() % 5 != 0) {
+        zerosOnes = "0" + zerosOnes;
+        localcnt++;
+    }
+    codedData += to_string(localcnt);
+    string Hex = BiToHex(zerosOnes);
+
+    codedData += Hex;
+    return codedData;
+}
+string XmlParser::encode(string data) {
+    fill(freq, freq + MAXASCII, 0);
+    for (auto c : data) {
+        freq[c]++;
+    }
+    leafCoding(TreeMaker(freq), "");
+    sortingTree();
+    return EncryptData(freq, data);
+}
+string XmlParser::decode(string data) {
+    int newfreq[MAXASCII] = { 0 };
+    string charCounterString = "";
+    int charCounter;
+    int indexcnt;
+    string encryptedData = "";
+    int i = 0;
+    while (i < data.size() && data[i] != '$' && data[i + 1] != '$') {
+        if (data[i] == '|') {
+            indexcnt = i + 1;
+            charCounterString = "";
+            while (data[indexcnt] != '/') {
+                charCounterString += data[indexcnt];
+                indexcnt++;
+            }
+            charCounter = stoi(charCounterString);
+            newfreq[(int)data[i - 1]] = charCounter;
+            i += (indexcnt - i + 1);
+        }
+        else {
+            i++;
+        }
+    }
+    //frequency array is adjusted updated during while loop
+    i += 2; //to jump over $$
+    //frequency is updated now it`s time to take encrypted data
+    if (i >= data.size())return "";
+    int temp_cnt = data[i] - '0'; // saving number of reduandant zeros
+    i++;
+
+    for (; i < data.size(); i++) {
+        encryptedData += data[i];               // we got all HEXNumbers
+    }
+
+    string ZerosOnes = HexToBi(encryptedData);
+
+    //now we got all originalZeros&ones
+
+    string ans = "";
+    Node* root = TreeMaker(newfreq);
+    Node* curr = root;
+    for (int i = temp_cnt; i < ZerosOnes.size(); i++)
+    {
+        if (ZerosOnes[i] == '0')
+            curr = curr->left;
+        else
+            curr = curr->right;
+
+        // reached leaf node
+        if ((curr->left == NULL) && (curr->right == NULL))
+        {
+            ans += curr->c;
+            curr = root;
+        }
+    }
+    return ans;
+}
 void XmlParser::extractData() {
     vector<Post> posts;
     vector<Follower> followers;
