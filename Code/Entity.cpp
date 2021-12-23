@@ -830,6 +830,7 @@ void XmlParser::setXml(string& xml)
     xml.erase(std::remove(xml.begin(), xml.end(), '\r'), xml.end());
     this->xml = xml;
 }
+template<class T>
 static void XmlParser::setField(myPair<int, T>& target, vector< myPair<int, T> >& list) {
     if (!list.empty()) {
         if (list.size() == 1) {
@@ -1117,6 +1118,10 @@ bool XmlParser::isStartTag(string tag) {
     if (tag[1] != '/' && tag[0] == '<')
         return true;
     return false;
+}
+void XmlParser::checkErrors()
+{
+    checkErrors(xml);
 }
 void XmlParser::checkErrors(string xml) {
     errors.clear();

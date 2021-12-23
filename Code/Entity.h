@@ -96,6 +96,7 @@ namespace Entity
         template<class T>
         static void setField(myPair<int, T>& target, vector< myPair<int, T> >& list);
         bool isStartTag(string tag);
+        void checkErrors();
         string getData(string& xml, int& counter);
         void checkStack();
         string trimLine(string input);
