@@ -8,6 +8,61 @@ namespace Entity
     //the xml handling class
     class XmlParser {
     public:
+        class Follower {
+        public:
+            string id;
+            vector<string> idVector;
+            void clear();
+            void setFollower();
+            void printInXml(string& xmlFormatted);
+        };
+        template<class T, class U>
+        class myPair {
+        public:
+            T first;
+            U second;
+            myPair(T first, U second);
+            myPair();
+            void setPairValues(T first, U second);
+        };
+        class Post {
+        public:
+            vector<int>postOrder;
+            string s = "";
+
+            myPair<int, string> body = createPair(-1, s);
+            myPair<int, vector<string>> topics = createPair(-1, vector<string>{});
+
+            vector<myPair<int, string>> bodyVector;
+            vector<myPair<int, vector<string>>> topicsVector;
+
+            void clear();
+            void setPost();
+            void printInXml(string& xmlFormatted);
+        private:
+            void getOrder();
+        };
+        class User {
+        private:
+            void getOrder();
+        public:
+            vector<int> userOrder;
+            string s = "";
+
+            myPair<int, string> id = createPair(-1, s);
+            myPair<int, string> name = createPair(-1, s);
+            myPair<int, vector<Post>> posts = createPair(-1, vector<Post>{});
+            myPair<int, vector<Follower>> followers = createPair(-1, vector<Follower>{});
+
+            vector<myPair<int, string>>idVector;
+            vector<myPair<int, string>>nameVector;
+            vector<myPair<int, vector<Post>>> postsVector;
+            vector<myPair<int, vector<Follower>>> followersVector;
+            void clear();
+            void printInJson(string& json);
+            void setUser();
+            void printInXml(string& xmlFormatted);
+        };
         vector<myPair<int, int>>errors;
         stack< myPair< myPair< string, int >, myPair< int, int > > > tagStack;  //{tag name, line index} and {start index,end index}
         vector<vector<myPair<int, int>>> colors;
