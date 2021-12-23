@@ -82,6 +82,7 @@ namespace Entity
         static myPair<T, U> createPair(T first, U second);
         template<class T>
         static void setField(myPair<int, T>& target, vector< myPair<int, T> >& list);
+        bool isStartTag(string tag);
         string getData(string& xml, int& counter);
         void checkStack();
         string trimLine(string input);
