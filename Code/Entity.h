@@ -93,6 +93,7 @@ namespace Entity
         void checkErrors(string xml);
         void correctTag(string tagName);
         void toLines();
+        void correctXml();
         void fillColors();
         string getTagName(string tag);
         static string getSpace(int numOfSpaces);
