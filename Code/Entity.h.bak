@@ -9,6 +9,7 @@ namespace Entity
     //the xml handling class
     class XmlParser {
     public:
+       
         vector<myPair<int, int>>errors;
         stack< myPair< myPair< string, int >, myPair< int, int > > > tagStack;  //{tag name, line index} and {start index,end index}
         vector<vector<myPair<int, int>>> colors;
