@@ -90,6 +90,7 @@ namespace Entity
         void deleteNewLines();
         void extractData();
         void printJson();
+        void checkErrors(string xml);
         void correctTag(string tagName);
         void toLines();
         void fillColors();
