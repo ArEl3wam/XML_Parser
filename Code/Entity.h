@@ -28,5 +28,13 @@ namespace Entity
         void checkStack();
         string trimLine(string input);
         string getTagFrame(string& xml, int& pointer);
+        void deleteNewLines();
+        void extractData();
+        void printJson();
+        void correctTag(string tagName);
+        void toLines();
+        void fillColors();
+        string getTagName(string tag);
+        static string getSpace(int numOfSpaces);
     };
 }
