@@ -63,6 +63,19 @@ namespace Entity
             void setUser();
             void printInXml(string& xmlFormatted);
         };
+        class Node
+        {
+        public:
+            Node* left, * right;
+            string c;
+            int freq;
+            Node(int freq, string c, Node* left, Node* right);
+            ~Node();
+        };
+        struct compare
+        {
+            bool operator()(const Node* l, const Node* r) const;
+        };
         vector<myPair<int, int>>errors;
         stack< myPair< myPair< string, int >, myPair< int, int > > > tagStack;  //{tag name, line index} and {start index,end index}
         vector<vector<myPair<int, int>>> colors;
@@ -100,6 +113,8 @@ namespace Entity
         string getTagName(string tag);
         static string getSpace(int numOfSpaces);
         vector<string> splitter(string s, int size);
+        string BiToHex(string s);
+        string HexToBi(string s);
         Node* huffman();
         Node* TreeMaker(int freq[]);
         void leafCoding(Node* tree, string code);
