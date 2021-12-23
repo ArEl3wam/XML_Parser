@@ -830,3 +830,341 @@ void XmlParser::setXml(string& xml)
     xml.erase(std::remove(xml.begin(), xml.end(), '\r'), xml.end());
     this->xml = xml;
 }
+static void XmlParser::setField(myPair<int, T>& target, vector< myPair<int, T> >& list) {
+    if (!list.empty()) {
+        if (list.size() == 1) {
+            target = list[0];
+        }
+        else if (list.size() > 1) {
+            bool nonEmptyFound = 0;
+            for (int i = 0; i < list.size(); ++i) {
+                if (!list[i].second.empty()) {
+                    nonEmptyFound = 1;
+                    target = list[i];
+                    break;
+                }
+            }
+            if (!nonEmptyFound)
+                target = list[0];
+        }
+    }
+}
+void XmlParser::correctXml() {
+    toLines();
+    vector<string>toCorrect{ "id" ,"name","body","topic","topics","follower","followers","post","posts","user","users" };
+    for (auto tag : toCorrect)
+        correctTag(tag);
+    xmlCommpressed.clear(); //cleared after using it in toLines
+    for (auto line : lines)
+        xmlCommpressed.append(line);
+    extractData(); //fills data base
+    getXmlFormatted();
+}
+void XmlParser::recreateXml() {
+    reformatted.clear();
+    for (int i = 0; i < lines.size(); ++i) {
+        reformatted.append(lines[i]);
+        reformatted.push_back('\n');
+    }
+}
+void XmlParser::getXmlFormatted() {
+    xmlFormatted = "";
+    xmlFormatted.append("<users>\n");
+    for (auto user : users)
+        user.printInXml(xmlFormatted);
+    xmlFormatted.append("</users>\n");
+}
+template<class T, class U>
+XmlParser::myPair<T, U> XmlParser::createPair(T first, U second)
+{
+    myPair<T, U> mypair(first, second);
+    return mypair;
+}
+void XmlParser::Follower::clear()
+{
+    id = "";
+    idVector.clear();
+}
+void XmlParser::Follower::printInXml(string& xmlFormatted) {
+    string data = id.empty() ? "" : getSpace(20) + id + "\n";
+    xmlFormatted.append(getSpace(12) + "<follower>\n");
+    xmlFormatted.append(getSpace(16) + "<id>\n");
+    xmlFormatted.append(data);
+    xmlFormatted.append(getSpace(16) + "</id>\n");
+    xmlFormatted.append(getSpace(12) + "</follower>\n");
+}
+void XmlParser::Follower::setFollower() {
+    bool nonEmptyIdFound = 0;
+    if (!idVector.empty()) {
+        if (idVector.size() == 1) {
+            id = idVector[0];
+        }
+        else {
+            for (int i = 0; i < idVector.size(); ++i) {
+                if (!idVector[i].empty()) {
+                    id = idVector[i];
+                    nonEmptyIdFound = 1;
+                    break;
+                }
+                if (!nonEmptyIdFound) {
+                    id = "";
+                }
+            }
+        }
+    }
+}
+template<class T, class U>
+void XmlParser::myPair<T, U>::setPairValues(T first, U second)
+{
+    this->first = first;
+    this->second = second;
+}
+template<class T, class U>
+XmlParser::myPair<T, U>::myPair(T first, U second)
+{
+    this->first = first;
+    this->second = second;
+}
+template<class T, class U>
+XmlParser::myPair<T, U>::myPair()
+{}
+void XmlParser::Post::clear()
+{
+    postOrder.clear();
+    body.first = -1;
+    body.second = "";
+    topics.first = -1;
+    topics.second.clear();
+    bodyVector.clear();
+    topicsVector.clear();
+}
+void XmlParser::Post::setPost() {
+    //setting the body
+    setField(body, bodyVector);
+    //setting the topics
+    setField(topics, topicsVector);
+}
+void XmlParser::Post::getOrder()
+{
+    vector<int> sortFieldVec{ body.first, topics.first };
+    sort(sortFieldVec.begin(), sortFieldVec.end());
+    for (int i = 0; i < sortFieldVec.size(); ++i) {
+        if (sortFieldVec[i] != -1) {
+            if (sortFieldVec[i] == body.first)
+                postOrder.push_back(BODY);
+
+            else if (sortFieldVec[i] == topics.first)
+                postOrder.push_back(TOPICS);
+        }
+    }
+}
+void XmlParser::Post::printInXml(string& xmlFormatted) {
+    getOrder();
+    bool printBody = 0,
+        printTopics = 0;
+    xmlFormatted.append(getSpace(12) + "<post>\n");
+    for (auto dataField : postOrder) {
+        if (dataField == BODY) {
+            string data = body.second.empty() ? "" : getSpace(16) + body.second + "\n";
+            xmlFormatted.append(getSpace(16) + "<body>\n" + data + getSpace(16) + "</body>\n");
+            printBody = 1;
+        }
+        else if (dataField == TOPICS) {
+            printTopics = 1;
+            xmlFormatted.append(getSpace(16) + "<topics>\n");
+            for (auto topic : topics.second) {
+                string data = topic.empty() ? "" : getSpace(24) + topic + "\n";
+                xmlFormatted.append(getSpace(20) + "<topic>\n");
+                xmlFormatted.append(data);
+                xmlFormatted.append(getSpace(20) + "</topic>\n");
+            }
+            xmlFormatted.append(getSpace(16) + "</topics>\n");
+        }
+    }
+    if (!printBody) {
+        xmlFormatted.append(getSpace(16) + "<body>\n" + getSpace(16) + "</body>\n");
+    }
+    if (!printTopics) {
+        xmlFormatted.append(getSpace(16) + "<topics>\n" + getSpace(16) + "</topics>\n");
+    }
+    xmlFormatted.append(getSpace(12) + "</post>\n");
+}
+void XmlParser::User::clear()
+{
+    userOrder.clear();
+
+    id.first = -1, name.first = -1;
+    id.second = "", name.second = "";
+
+    posts.second.clear();
+    posts.first = -1;
+
+    followers.second.clear();
+    followers.first = -1;
+
+
+    idVector.clear();
+    nameVector.clear();
+    postsVector.clear();
+    followersVector.clear();
+}
+void XmlParser::User::printInJson(string& json)
+{
+    string idData = id.second != "" ? "\"" + id.second + "\"" : "[]";
+    string nameData = name.second != "" ? "\"" + name.second + "\"" : "[]";
+    json.append(getSpace(8) + "\"user\": {" + "\n" +
+        getSpace(12) + "\"id\": " + idData + "," + "\n" +
+        getSpace(12) + "\"name\": " + nameData + "," + "\n" +
+        getSpace(12) + "\"posts\": [" + "\n");
+    for (int i = 0; i < posts.second.size(); ++i) {
+        json.append(getSpace(16) + posts.second[i].body.second);
+        if (i == posts.second.size() - 1)
+            json.append("\n");
+        else
+            json.append(",\n");
+    }
+    json.append(getSpace(12) + "]," + "\n");
+    //printing the followers
+    json.append(getSpace(12) + "\"followers\": [" + "\n");
+    for (int i = 0; i < followers.second.size(); ++i) {
+        string followerData = followers.second[i].id != "" ? "\"" + followers.second[i].id + "\"" : "[]";
+        json.append(getSpace(16) + "{" + "\n" +
+            getSpace(16) + "\"id\": " + followerData + "\n" +
+            getSpace(16));
+        if (i == followers.second.size() - 1)
+            json.append("}");
+        else
+            json.append("},\n");
+    }
+    if (followers.second.size() != 0)
+        json.append("\n");
+    json.append(getSpace(12) + "]" + "\n" +
+        getSpace(8) + "}" + "\n");
+}
+void XmlParser::User::setUser()
+{
+    setField(name, nameVector);
+    setField(id, idVector);
+    setField(posts, postsVector);
+    setField(followers, followersVector);
+}
+void XmlParser::User::getOrder() {
+    vector<int> sortFieldVec{ id.first, name.first, posts.first, followers.first };
+    sort(sortFieldVec.begin(), sortFieldVec.end());
+    for (int i = 0; i < sortFieldVec.size(); ++i) {
+        if (sortFieldVec[i] != -1) {
+            if (sortFieldVec[i] == id.first)
+                userOrder.push_back(USER_ID);
+            else if (sortFieldVec[i] == name.first)
+                userOrder.push_back(NAME);
+            else if (sortFieldVec[i] == posts.first)
+                userOrder.push_back(POSTS);
+            else if (sortFieldVec[i] == followers.first)
+                userOrder.push_back(FOLLOWERS);
+        }
+    }
+}
+void XmlParser::User::printInXml(string& xmlFormatted) {
+    getOrder();
+    bool printId = 0,
+        printName = 0,
+        printPosts = 0,
+        printFollowers = 0;
+    xmlFormatted.append(getSpace(4) + "<user>\n");
+    for (auto dataField : userOrder) {
+        xmlFormatted.append(getSpace(8));
+        if (dataField == USER_ID) {
+            string data = (id.second.empty()) ? "" : getSpace(12) + id.second + "\n";
+            xmlFormatted.append("<id>\n" + data + getSpace(8) + "</id>\n");
+            printId = 1;
+        }
+        else if (dataField == NAME) {
+            string data = (name.second.empty()) ? "" : getSpace(12) + name.second + "\n";
+            xmlFormatted.append("<name>\n" + data + getSpace(8) + "</name>\n");
+            printName = 1;
+        }
+        else if (dataField == FOLLOWERS) {
+            xmlFormatted.append("<followers>\n");
+            for (auto follower : followers.second)
+                follower.printInXml(xmlFormatted);
+            xmlFormatted.append(getSpace(8) + "</followers>\n");
+            printFollowers = 1;
+        }
+        else if (dataField == POSTS) {
+            xmlFormatted.append("<posts>\n");
+            for (auto post : posts.second)
+                post.printInXml(xmlFormatted);
+            xmlFormatted.append(getSpace(8) + "</posts>\n");
+            printPosts = 1;
+        }
+    }
+    //filling the missing data
+    if (!printId) {
+        xmlFormatted.append(getSpace(8) + "<id>\n" + getSpace(8) + "</id>\n");
+    }
+    if (!printName) {
+        xmlFormatted.append(getSpace(8) + "<name>\n" + getSpace(8) + "</name>\n");
+    }
+    if (!printPosts) {
+        xmlFormatted.append(getSpace(8) + "<posts>\n" + getSpace(8) + "</posts>\n");
+    }
+    if (!printFollowers) {
+        xmlFormatted.append(getSpace(8) + "<followers>\n" + getSpace(8) + "</followers>\n");
+    }
+    xmlFormatted.append(getSpace(4) + "</user>\n");
+}
+bool XmlParser::isStartTag(string tag) {
+    if (tag[1] != '/' && tag[0] == '<')
+        return true;
+    return false;
+}
+void XmlParser::checkErrors(string xml) {
+    errors.clear();
+    tagSet.clear();
+    int lineIndex = 1;
+    int i = 0;
+    string tagFrame;
+    string tagName;
+    int startIndex = -1;
+    int endIndex = -1;
+    while (i < xml.size()) {
+        if (xml[i] == '\n')
+            ++lineIndex;
+        else if (xml[i] == '<' && (i == 0 || xml[i - 1] != '\\' || (i >= 2 && xml[i - 1] == '\\' && xml[i - 2] == '\\'))) {
+            startIndex = i;
+            tagFrame = getTagFrame(xml, i);
+            endIndex = i;
+            tagName = getTagName(tagFrame);
+            if (isStartTag(tagFrame)) {
+                tagStack.push(createPair(createPair(tagName, lineIndex), createPair(startIndex, endIndex)));
+                tagSet.insert(tagName);
+            }
+            else {
+                if (tagStack.empty()) {
+                    errors.push_back(createPair(startIndex, endIndex));
+                }
+                else if (tagName == tagStack.top().first.first) {
+                    tagSet.erase(tagSet.lower_bound(tagName));
+                    tagStack.pop();
+                }
+                else if (tagName != tagStack.top().first.first) {
+                    if (!tagSet.count(tagName)) {
+                        errors.push_back(createPair(startIndex, endIndex));
+                    }
+                    else {
+                        while (tagStack.top().first.first != tagName) {
+                            auto stackTop = tagStack.top();
+                            errors.push_back(stackTop.second);
+                            tagSet.erase(tagSet.lower_bound(tagStack.top().first.first));
+                            tagStack.pop();
+                        }
+                        tagStack.pop();
+                        tagSet.erase(tagSet.lower_bound(tagName));
+                    }
+                }
+            }
+        }
+        ++i;
+    }
+    checkStack();
+}
