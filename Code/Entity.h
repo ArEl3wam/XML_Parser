@@ -36,5 +36,14 @@ namespace Entity
         void fillColors();
         string getTagName(string tag);
         static string getSpace(int numOfSpaces);
+        vector<string> splitter(string s, int size);
+        Node* huffman();
+        Node* TreeMaker(int freq[]);
+        void leafCoding(Node* tree, string code);
+        static bool compareByLength(const myPair<string,string>& a, const myPair<string,string>& b);
+        void sortingTree();
+        string EncryptData(int freq[], string data);
+        string encode(string data);
+        string decode(string data);
     };
 }
