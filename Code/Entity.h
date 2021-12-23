@@ -80,6 +80,8 @@ namespace Entity
         void setXml(string& xml);
         template<class T, class U>
         static myPair<T, U> createPair(T first, U second);
+        template<class T>
+        static void setField(myPair<int, T>& target, vector< myPair<int, T> >& list);
         string getData(string& xml, int& counter);
         void checkStack();
         string trimLine(string input);
