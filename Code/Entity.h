@@ -96,6 +96,7 @@ namespace Entity
         void correctXml();
         void recreateXml();
         void fillColors();
+        void getXmlFormatted();
         string getTagName(string tag);
         static string getSpace(int numOfSpaces);
         vector<string> splitter(string s, int size);
