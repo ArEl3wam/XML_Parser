@@ -78,6 +78,8 @@ namespace Entity
         priority_queue<Node*, vector<Node*>, compare>pq;
         vector<myPair<string, string>> pairs;
         void setXml(string& xml);
+        template<class T, class U>
+        static myPair<T, U> createPair(T first, U second);
         string getData(string& xml, int& counter);
         void checkStack();
         string trimLine(string input);
