@@ -12,7 +12,6 @@ typedef unsigned long long ull;
 #define FOLLOWERS 5
 #define POSTS 6
 #define MAXASCII 256
-
 // for color coding
 #define ID_COLOR 0
 #define USER_COLOR 1
@@ -26,8 +25,6 @@ typedef unsigned long long ull;
 #define TOPICS_COLOR 9
 #define BODY_COLOR 10
 
-
-
 vector<string> XmlParser::splitter(string s, int size) {
     vector<string>chars;
     while (s.size() > 0) {
@@ -36,7 +33,7 @@ vector<string> XmlParser::splitter(string s, int size) {
     }
     return chars;
 }
-string XmlParser::getSpace(int numOfSpaces){
+string XmlParser::getSpace(int numOfSpaces) {
     string spaces;
     for (int i = 0; i < numOfSpaces; ++i)
         spaces.push_back(' ');
@@ -291,7 +288,6 @@ XmlParser::Node* XmlParser::huffman() {
     }
     return pq.top();
 }
-
 XmlParser::Node* XmlParser::TreeMaker(int freq[]) {
     while (!pq.empty()) {
         pq.pop();
@@ -309,13 +305,13 @@ XmlParser::Node* XmlParser::TreeMaker(int freq[]) {
 void XmlParser::leafCoding(Node* tree, string code) {
     if (tree == NULL) return;
     if (tree->c.size() == 1) {
-        myPair<string,string> p(tree->c, code);
+        myPair<string, string> p(tree->c, code);
         pairs.push_back(p);
     }
     leafCoding(tree->left, code + '0');
     leafCoding(tree->right, code + '1');
 }
-bool XmlParser::compareByLength(const myPair<string,string>& a, const myPair<string,string>& b) {
+bool XmlParser::compareByLength(const myPair<string, string>& a, const myPair<string, string>& b) {
     return a.second.size() < b.second.size();
 }
 void XmlParser::sortingTree() {
@@ -419,7 +415,165 @@ string XmlParser::decode(string data) {
     }
     return ans;
 }
+bool XmlParser::isSubString(string target, string base)
+{
+    int targetIndex = 0;
+    if (target.size() > base.size())
+        return 0;
+    for (int i = 0; i < base.size() - target.size() + 1; ++i) {
+        if (base[i] == target[targetIndex]) {
+            for (int j = i; targetIndex < target.size(); ++j) {
+                if (base[j] != target[targetIndex]) {
+                    targetIndex = 0;
+                    i = j;
+                    break;
+                }
+                if (base[j] == target[targetIndex] && targetIndex == target.size() - 1)
+                    return 1;
+                ++targetIndex;
+            }
+        }
+    }
+    return 0;
+}
+bool XmlParser::isNumber(string number)
+{
+    for (auto c : number)
+        if (!(c - '0' >= 0 && c - '0' <= 9))
+            return 0;
+    return 1;
+}
+int XmlParser::isItemFound(int item, vector<int>& itemVec)
+{
+    int start = 0, end = itemVec.size() - 1;
+    while (start <= end) {
+        int mid = (end - start) / 2 + start;
+        if (itemVec[mid] == item)
+            return mid;
+        else if (itemVec[mid] > item)
+            end = mid - 1;
+        else
+            start = mid + 1;
+    }
+    return -1;
+}
+bool XmlParser::compareUsers(User user1, User user2)
+{
+    return stoi(user1.id.second) <= stoi(user2.id.second);
+}
+string XmlParser::searchPosts(string keyWord)
+{
+    int postNumber = 1;
+    string postList;
+    for (auto user : users) {
+        for (auto post : user.posts.second) { //looping through the body of all posts of a user
+            if (isSubString(keyWord, post.body.second)) {
+                postList.append("Post #" + to_string(postNumber++) + ":\n" + "BY: " + user.name.second + " (" + user.id.second + ")" + "\n" + post.body.second + "\n_________\n");
+                break;
+            }
+            for (auto topic : post.topics.second)
+                if (isSubString(keyWord, topic)) {
+                    postList.append("Post #" + to_string(postNumber++) + ":\n" + "BY: " + user.name.second + " (" + user.id.second + ")" + "\n" + post.body.second + "\n_________\n");
+                    break;
+                }
+        }
+    }
+    if (postList.empty())
+        postList = "NO POSTS FOUND :(";
+    return postList;
+}
+string XmlParser::getMutualFollowers(string ID1, string ID2)
+{
+    if (!isNumber(ID1) && !isNumber(ID2))
+        return "INVALID ID FOR USER 1 AND USER 2";
+    else if (!isNumber(ID1) && isNumber(ID2))
+        return "INVALID ID FOR USER 1";
+    else if (isNumber(ID1) && !isNumber(ID2))
+        return "INVALID ID FOR USER 2";
+    else { //work starts here 
+        if (ID1 == ID2)
+            return "PLEASE ENTER DIFFERENT USERS' IDS";
+        string usersList;
+        vector<int> followers1, followers2;
+        bool firstUserFound = 0, secondUserFound = 0;
+        for (auto user : users) { //filling the vectors
+            if (user.id.second == ID1) {
+                firstUserFound = 1;
+                for (auto follower : user.followers.second)
+                    followers1.push_back(stoi(follower.id));
+            }
+            else if (user.id.second == ID2) {
+                secondUserFound = 1;
+                for (auto follower : user.followers.second)
+                    followers2.push_back(stoi(follower.id));
+            }
+        }
+        if (!firstUserFound && secondUserFound)
+            return "USER 1 DOES NOT EXIST ON THE NETWORK";
+        else if (firstUserFound && !secondUserFound)
+            return "USER 2 DOES NOT EXIST ON THE NETWORK";
+        else if (!firstUserFound && !secondUserFound)
+            return "USER 1 AND USER 2 DON'T EXIST ON THE NETWORK";
+
+        sort(followers1.begin(), followers1.end());
+        sort(followers2.begin(), followers2.end());
+
+        for (auto follower : followers1)
+            if (isItemFound(follower, followers2) != -1)
+                usersList = usersList + to_string(follower) + " ";
+        return "Mutual users' IDs: \n" + usersList;
+    }
+}
+string XmlParser::recommendPeople(string id)
+{
+    if (!isNumber(id))
+        return "INVALID USER ID";
+    vector<int>usersIds, toFollowIds;
+    string toFollow;
+    for (auto user : users)
+        usersIds.push_back(stoi(user.id.second));
+    int userIndex = isItemFound(stoi(id), usersIds);
+    if (userIndex == -1)
+        return "USER DOES NOT EXIST ON THE NETWORK";
+    //getting the followers of followers
+    for (auto follower : users[userIndex].followers.second) {
+        int followerId = stoi(follower.id);
+        int followerIndex = isItemFound(followerId, usersIds);
+        for (auto followerOfFollower : users[followerIndex].followers.second)
+            if (followerOfFollower.id != id)
+                toFollowIds.push_back(stoi(followerOfFollower.id));
+    }
+    sort(toFollowIds.begin(), toFollowIds.end());
+    toFollowIds.push_back(-1);
+    for (int i = 0; i < toFollowIds.size() - 1; ++i)
+        if (toFollowIds[i] != toFollowIds[i + 1])
+            toFollow.append(to_string(toFollowIds[i]) + " ");
+    return toFollow.empty() ? "No recommendations found :(" : "The list of recommended to follow: \n" + toFollow;
+}
+string XmlParser::doNetworkAnalysis()
+{
+    string influencerString;
+    string writerString;
+    int influncerFollowers = -1;
+    int writerPosts = -1;
+    for (auto user : users) {
+        influncerFollowers = max(influncerFollowers, (int)user.followers.second.size());
+        writerPosts = max(writerPosts, (int)user.posts.second.size());
+    }
+    for (auto user : users) {
+        if (user.followers.second.size() == influncerFollowers)
+            influencerString.append("User Name: " + user.name.second + " - User ID: " + user.id.second + "\n");
+        if (user.posts.second.size() == writerPosts)
+            writerString.append("User Name: " + user.name.second + " - User ID: " + user.id.second + "\n");
+    }
+    influencerString = (influncerFollowers == -1) ? "NO ONE IS FOLLOWING ANYONE" : "The List of most followed people with "
+        + to_string(influncerFollowers) + " follower/s :\n" + influencerString;
+    writerString = (writerPosts == -1) ? "NO ONE WROTE POSTS" : "The List of people with the highest number of posts with "
+        + to_string(writerPosts) + " post/s :\n" + writerString;
+    return influencerString + "____\n" + writerString;
+}
 void XmlParser::extractData() {
+    users.clear();
     vector<Post> posts;
     vector<Follower> followers;
     vector<string> topics;
@@ -573,23 +727,22 @@ void XmlParser::extractData() {
         for (int j = 0; j < users[i].followers.second.size(); ++j)
             users[i].followers.second[j].setFollower();
     }
+    sort(users.begin(), users.end(), compareUsers);
 }
 void XmlParser::printJson() {
     if (xml == "")
         return;
     json = "";
-    users.clear();
-    extractData();
-    json.append("{\n" +
-        getSpace(4) + "\"users\": [\n");
-    //printing the users data
-    for (auto user : users)
-        user.printInJson(json);
-    json.append(getSpace(4) + "]\n" +
-        "}\n");
+    json.append("{\n");
+    toLines();
+    tagTree = new TagTree();
+    tagTree->constructTree(lines);
+    tagTree->printInOrder(JSON_FORMAT, json);
+    tagTree->~TagTree();
+    json.append("}");
 }
 void XmlParser::correctTag(string tagName) {  //Lines vector->Lines vector (corrected)
-    set<string> escapeTags;
+    MultiSet escapeTags;
     if (tagName == "topics")
         escapeTags.insert("topic");
     else if (tagName == "follower")
@@ -638,15 +791,16 @@ void XmlParser::correctTag(string tagName) {  //Lines vector->Lines vector (corr
     for (int i = 0; i < lines.size(); ++i) {
         if (search == 1 && lines[i][0] == '<') {
             if (!escapeTags.count(getTagName(lines[i]))) {
-                if (isStartTag(lines[i]))
+                if (isStartTag(lines[i])) {
                     pos.push_back(i);
+                }
                 else
                     if (getTagName(lines[i]) != tagName)
                         pos.push_back(i);
                 search = 0;
             }
         }
-        else if (lines[i][0] == '<' && isStartTag(lines[i])) {
+        if (lines[i][0] == '<' && isStartTag(lines[i])) {
             if (getTagName(lines[i]) == tagName) {
                 search = 1;
             }
@@ -655,19 +809,21 @@ void XmlParser::correctTag(string tagName) {  //Lines vector->Lines vector (corr
     if (search) {
         lines.push_back("</" + tagName + ">");
         search = 0;
-    } vector<string>newLines(lines.size() + pos.size());
+    }
+
+    vector<string>newLines(lines.size() + pos.size());
     for (int i = 0; i < pos.size(); ++i) {
         newLines[pos[i]] = "</" + tagName + ">";
     }
     int k = 0;
-    for (int i = 0; i < lines.size(); ++i) {
+    for (int i = 0; i < lines.size();) {
         if (newLines[k].empty()) {
             newLines[k] = lines[i];
             ++k;
+            ++i;
         }
         else {
             ++k;
-            --i;
         }
     }
     lines = newLines;
@@ -686,7 +842,7 @@ void XmlParser::correctTag(string tagName) {  //Lines vector->Lines vector (corr
                 search = 0;
             }
         }
-        else if (lines[i][0] == '<' && !isStartTag(lines[i])) {
+        if (lines[i][0] == '<' && !isStartTag(lines[i])) {
             if (getTagName(lines[i]) == tagName) {
                 search = 1;
             }
@@ -712,6 +868,7 @@ void XmlParser::correctTag(string tagName) {  //Lines vector->Lines vector (corr
         }
     }
     lines = newLines;
+    escapeTags.~MultiSet();
 }
 void XmlParser::toLines() {
     lines.clear();
@@ -870,10 +1027,11 @@ void XmlParser::recreateXml() {
 }
 void XmlParser::getXmlFormatted() {
     xmlFormatted = "";
-    xmlFormatted.append("<users>\n");
-    for (auto user : users)
-        user.printInXml(xmlFormatted);
-    xmlFormatted.append("</users>\n");
+    toLines();
+    tagTree = new TagTree();
+    tagTree->constructTree(lines);
+    tagTree->printInOrder(XML_FORMAT, xmlFormatted);
+    tagTree->~TagTree();
 }
 template<class T, class U>
 XmlParser::myPair<T, U> XmlParser::createPair(T first, U second)
@@ -885,14 +1043,6 @@ void XmlParser::Follower::clear()
 {
     id = "";
     idVector.clear();
-}
-void XmlParser::Follower::printInXml(string& xmlFormatted) {
-    string data = id.empty() ? "" : getSpace(20) + id + "\n";
-    xmlFormatted.append(getSpace(12) + "<follower>\n");
-    xmlFormatted.append(getSpace(16) + "<id>\n");
-    xmlFormatted.append(data);
-    xmlFormatted.append(getSpace(16) + "</id>\n");
-    xmlFormatted.append(getSpace(12) + "</follower>\n");
 }
 void XmlParser::Follower::setFollower() {
     bool nonEmptyIdFound = 0;
@@ -945,51 +1095,6 @@ void XmlParser::Post::setPost() {
     //setting the topics
     setField(topics, topicsVector);
 }
-void XmlParser::Post::getOrder()
-{
-    vector<int> sortFieldVec{ body.first, topics.first };
-    sort(sortFieldVec.begin(), sortFieldVec.end());
-    for (int i = 0; i < sortFieldVec.size(); ++i) {
-        if (sortFieldVec[i] != -1) {
-            if (sortFieldVec[i] == body.first)
-                postOrder.push_back(BODY);
-
-            else if (sortFieldVec[i] == topics.first)
-                postOrder.push_back(TOPICS);
-        }
-    }
-}
-void XmlParser::Post::printInXml(string& xmlFormatted) {
-    getOrder();
-    bool printBody = 0,
-        printTopics = 0;
-    xmlFormatted.append(getSpace(12) + "<post>\n");
-    for (auto dataField : postOrder) {
-        if (dataField == BODY) {
-            string data = body.second.empty() ? "" : getSpace(16) + body.second + "\n";
-            xmlFormatted.append(getSpace(16) + "<body>\n" + data + getSpace(16) + "</body>\n");
-            printBody = 1;
-        }
-        else if (dataField == TOPICS) {
-            printTopics = 1;
-            xmlFormatted.append(getSpace(16) + "<topics>\n");
-            for (auto topic : topics.second) {
-                string data = topic.empty() ? "" : getSpace(24) + topic + "\n";
-                xmlFormatted.append(getSpace(20) + "<topic>\n");
-                xmlFormatted.append(data);
-                xmlFormatted.append(getSpace(20) + "</topic>\n");
-            }
-            xmlFormatted.append(getSpace(16) + "</topics>\n");
-        }
-    }
-    if (!printBody) {
-        xmlFormatted.append(getSpace(16) + "<body>\n" + getSpace(16) + "</body>\n");
-    }
-    if (!printTopics) {
-        xmlFormatted.append(getSpace(16) + "<topics>\n" + getSpace(16) + "</topics>\n");
-    }
-    xmlFormatted.append(getSpace(12) + "</post>\n");
-}
 void XmlParser::User::clear()
 {
     userOrder.clear();
@@ -1009,110 +1114,12 @@ void XmlParser::User::clear()
     postsVector.clear();
     followersVector.clear();
 }
-void XmlParser::User::printInJson(string& json)
-{
-    string idData = id.second != "" ? "\"" + id.second + "\"" : "[]";
-    string nameData = name.second != "" ? "\"" + name.second + "\"" : "[]";
-    json.append(getSpace(8) + "\"user\": {" + "\n" +
-        getSpace(12) + "\"id\": " + idData + "," + "\n" +
-        getSpace(12) + "\"name\": " + nameData + "," + "\n" +
-        getSpace(12) + "\"posts\": [" + "\n");
-    for (int i = 0; i < posts.second.size(); ++i) {
-        json.append(getSpace(16) + posts.second[i].body.second);
-        if (i == posts.second.size() - 1)
-            json.append("\n");
-        else
-            json.append(",\n");
-    }
-    json.append(getSpace(12) + "]," + "\n");
-    //printing the followers
-    json.append(getSpace(12) + "\"followers\": [" + "\n");
-    for (int i = 0; i < followers.second.size(); ++i) {
-        string followerData = followers.second[i].id != "" ? "\"" + followers.second[i].id + "\"" : "[]";
-        json.append(getSpace(16) + "{" + "\n" +
-            getSpace(16) + "\"id\": " + followerData + "\n" +
-            getSpace(16));
-        if (i == followers.second.size() - 1)
-            json.append("}");
-        else
-            json.append("},\n");
-    }
-    if (followers.second.size() != 0)
-        json.append("\n");
-    json.append(getSpace(12) + "]" + "\n" +
-        getSpace(8) + "}" + "\n");
-}
 void XmlParser::User::setUser()
 {
     setField(name, nameVector);
     setField(id, idVector);
     setField(posts, postsVector);
     setField(followers, followersVector);
-}
-void XmlParser::User::getOrder() {
-    vector<int> sortFieldVec{ id.first, name.first, posts.first, followers.first };
-    sort(sortFieldVec.begin(), sortFieldVec.end());
-    for (int i = 0; i < sortFieldVec.size(); ++i) {
-        if (sortFieldVec[i] != -1) {
-            if (sortFieldVec[i] == id.first)
-                userOrder.push_back(USER_ID);
-            else if (sortFieldVec[i] == name.first)
-                userOrder.push_back(NAME);
-            else if (sortFieldVec[i] == posts.first)
-                userOrder.push_back(POSTS);
-            else if (sortFieldVec[i] == followers.first)
-                userOrder.push_back(FOLLOWERS);
-        }
-    }
-}
-void XmlParser::User::printInXml(string& xmlFormatted) {
-    getOrder();
-    bool printId = 0,
-        printName = 0,
-        printPosts = 0,
-        printFollowers = 0;
-    xmlFormatted.append(getSpace(4) + "<user>\n");
-    for (auto dataField : userOrder) {
-        xmlFormatted.append(getSpace(8));
-        if (dataField == USER_ID) {
-            string data = (id.second.empty()) ? "" : getSpace(12) + id.second + "\n";
-            xmlFormatted.append("<id>\n" + data + getSpace(8) + "</id>\n");
-            printId = 1;
-        }
-        else if (dataField == NAME) {
-            string data = (name.second.empty()) ? "" : getSpace(12) + name.second + "\n";
-            xmlFormatted.append("<name>\n" + data + getSpace(8) + "</name>\n");
-            printName = 1;
-        }
-        else if (dataField == FOLLOWERS) {
-            xmlFormatted.append("<followers>\n");
-            for (auto follower : followers.second)
-                follower.printInXml(xmlFormatted);
-            xmlFormatted.append(getSpace(8) + "</followers>\n");
-            printFollowers = 1;
-        }
-        else if (dataField == POSTS) {
-            xmlFormatted.append("<posts>\n");
-            for (auto post : posts.second)
-                post.printInXml(xmlFormatted);
-            xmlFormatted.append(getSpace(8) + "</posts>\n");
-            printPosts = 1;
-        }
-    }
-    //filling the missing data
-    if (!printId) {
-        xmlFormatted.append(getSpace(8) + "<id>\n" + getSpace(8) + "</id>\n");
-    }
-    if (!printName) {
-        xmlFormatted.append(getSpace(8) + "<name>\n" + getSpace(8) + "</name>\n");
-    }
-    if (!printPosts) {
-        xmlFormatted.append(getSpace(8) + "<posts>\n" + getSpace(8) + "</posts>\n");
-    }
-    if (!printFollowers) {
-        xmlFormatted.append(getSpace(8) + "<followers>\n" + getSpace(8) + "</followers>\n");
-    }
-    xmlFormatted.append(getSpace(4) + "</user>\n");
 }
 bool XmlParser::isStartTag(string tag) {
     if (tag[1] != '/' && tag[0] == '<')
@@ -1125,7 +1132,7 @@ void XmlParser::checkErrors()
 }
 void XmlParser::checkErrors(string xml) {
     errors.clear();
-    tagSet.clear();
+    tagSet = new MultiSet();
     int lineIndex = 1;
     int i = 0;
     string tagFrame;
@@ -1142,29 +1149,29 @@ void XmlParser::checkErrors(string xml) {
             tagName = getTagName(tagFrame);
             if (isStartTag(tagFrame)) {
                 tagStack.push(createPair(createPair(tagName, lineIndex), createPair(startIndex, endIndex)));
-                tagSet.insert(tagName);
+                tagSet->insert(tagName);
             }
             else {
                 if (tagStack.empty()) {
                     errors.push_back(createPair(startIndex, endIndex));
                 }
                 else if (tagName == tagStack.top().first.first) {
-                    tagSet.erase(tagSet.lower_bound(tagName));
+                    tagSet->erase(tagSet->lower_bound(tagName));
                     tagStack.pop();
                 }
                 else if (tagName != tagStack.top().first.first) {
-                    if (!tagSet.count(tagName)) {
+                    if (!tagSet->count(tagName)) {
                         errors.push_back(createPair(startIndex, endIndex));
                     }
                     else {
                         while (tagStack.top().first.first != tagName) {
                             auto stackTop = tagStack.top();
                             errors.push_back(stackTop.second);
-                            tagSet.erase(tagSet.lower_bound(tagStack.top().first.first));
+                            tagSet->erase(tagSet->lower_bound(tagStack.top().first.first));
                             tagStack.pop();
                         }
                         tagStack.pop();
-                        tagSet.erase(tagSet.lower_bound(tagName));
+                        tagSet->erase(tagSet->lower_bound(tagName));
                     }
                 }
             }
@@ -1172,4 +1179,298 @@ void XmlParser::checkErrors(string xml) {
         ++i;
     }
     checkStack();
+    tagSet->~MultiSet();
+}
+XmlParser::SetNode::SetNode(string data) {
+    this->data = data;
+    left = NULL;
+    right = NULL;
+}
+string XmlParser::SetNode::getData() {
+    return this->data;
+}
+XmlParser::SetNode* XmlParser::MultiSet::getMin(SetNode* root)
+{
+    if (root == NULL)
+        return root;
+    if (root->left == NULL)
+        return root;
+    while (root->left != NULL)
+        return getMin(root->left);
+}
+XmlParser::SetNode* XmlParser::MultiSet::insert(string data, SetNode* root)
+{
+    if (root == NULL) {
+        root = new SetNode(data);
+        return  root;
+    }
+    if (data <= root->data) {
+        root->left = insert(data, root->left);
+    }
+    else {
+        root->right = insert(data, root->right);
+    }
+    return root;
+}
+XmlParser::SetNode* XmlParser::MultiSet::lower_bound(string data, SetNode* root)
+{
+    if (root == NULL || root->data == data)
+        return root;
+    if (data < root->data)
+        return lower_bound(data, root->left);
+    else
+        return lower_bound(data, root->right);
+}
+int XmlParser::MultiSet::count(string data, SetNode* root)
+{
+    if (root == NULL)
+        return 0;
+    int iCount = 0;
+    if (root->data < data)
+        iCount += count(data, root->right);
+    else if (root->data > data)
+        iCount += count(data, root->left);
+    else {
+        ++iCount;
+        iCount += count(data, root->left);
+    }
+    return iCount;
+}
+XmlParser::SetNode* XmlParser::MultiSet::erase(string data, SetNode* dataPointer, SetNode* root)
+{
+    if (root == NULL)
+        return root;
+    if (data < root->data)
+        root->left = erase(data, dataPointer, root->left);
+    else if (data > root->data)
+        root->right = erase(data, dataPointer, root->right);
+    else
+        if (dataPointer != root) //not the required node to be erased
+            root->left = erase(data, dataPointer, root->left);
+        else { //reqired node
+            if (root->left == NULL && root->right == NULL) {
+                delete root;
+                return NULL;
+            }
+            else if (root->left != NULL && root->right == NULL) {
+                SetNode* temp = root->left;
+                delete root;
+                return temp;
+            }
+            else if (root->left == NULL && root->right != NULL) {
+                SetNode* temp = root->right;
+                delete root;
+                return temp;
+            }
+            else {
+                SetNode* toDelete = getMin(root->right);
+                root->data = toDelete->data;
+                root->right = erase(toDelete->data, toDelete, root->right);
+            }
+        }
+    return root;
+}
+void XmlParser::MultiSet::deleteNodes(SetNode* root)
+{
+    if (root == NULL)
+        return;
+    if (root->left != NULL)
+        delete(root->left);
+    if (root->right != NULL)
+        delete(root->right);
+    delete root;
+}
+XmlParser::MultiSet::MultiSet()
+{
+    chain = NULL;
+}
+XmlParser::MultiSet::~MultiSet()
+{
+    deleteNodes(chain);
+    chain = NULL;
+}
+void XmlParser::MultiSet::insert(string data)
+{
+    this->chain = insert(data, chain);
+}
+XmlParser::SetNode* XmlParser::MultiSet::lower_bound(string data)
+{
+    return lower_bound(data, chain);
+}
+int XmlParser::MultiSet::count(string data)
+{
+    return count(data, chain);
+}
+void XmlParser::MultiSet::erase(SetNode* dataPointer)
+{
+    string data = dataPointer->data;
+    this->chain = erase(data, dataPointer, chain);
+}
+XmlParser::TagNode::TagNode(string name, string value, int type)
+{
+    this->name = name;
+    this->value = value;
+    this->type = type;
+    this->parent = NULL;
+}
+void XmlParser::TagNode::setName(string name)
+{
+    this->name = name;
+}
+void XmlParser::TagNode::setValue(string value)
+{
+    this->value = value;
+}
+void XmlParser::TagNode::setParent(TagNode* parent)
+{
+    this->parent = parent;
+}
+void XmlParser::TagNode::addChild(TagNode* child)
+{
+    this->children.push_back(child);
+}
+string XmlParser::TagNode::getName()
+{
+    return this->name;
+}
+string XmlParser::TagNode::getValue()
+{
+    return this->value;
+}
+XmlParser::TagNode* XmlParser::TagNode::getParent()
+{
+    return this->parent;
+}
+void XmlParser::TagNode::setType(int type)
+{
+    this->type = type;
+}
+int XmlParser::TagNode::getType()
+{
+    return this->type;
+}
+vector<XmlParser::TagNode*> XmlParser::TagNode::getChildren()
+{
+    return this->children;
+}
+void XmlParser::TagTree::deleteNodes(TagNode* root)
+{
+    if (root == NULL)
+        return;
+    if (!root->children.empty()) {
+        for (auto child : root->children)
+            deleteNodes(child);
+    }
+    delete root;
+}
+void XmlParser::TagTree::setTypes(TagNode* root)
+{
+    if (root == NULL)
+        return;
+    if (root->children.empty())
+        root->type = PRIMITIVE;
+    else {
+        if (root->children.size() == 1 || root->children[0]->name != root->children[1]->name)
+            root->type = OBJECT;
+        else
+            root->type = ARRAY;
+    }
+    for (auto child : root->children)
+        setTypes(child);
+}
+void XmlParser::TagTree::printInOrder(TagNode* root, int format, string& output, int lvl, bool isFinalElement)
+{
+    //corner case 
+    if (root == NULL)
+        return;
+    //target case
+    this->setTypes(chain); //initial process O(n)
+    chain->type = ILLUSION;
+    if (format == XML_FORMAT) {
+        if (root->type != ILLUSION) {
+            output.append(getSpace(4 * (lvl - 1)) + "<" + root->name + ">" + "\n");
+            if (!root->value.empty())
+                output.append(getSpace(4 * (lvl)) + root->value + "\n");
+        }
+    }
+    //printing in json
+    else if (format == JSON_FORMAT) {
+        if (root->type != ILLUSION) {
+            output.append(getSpace(4 * (1 + (lvl - 1))) + "\"" + root->name + "\": "); //"name":(-)
+            if (root->type == PRIMITIVE) //primitive
+                if (isFinalElement)
+                    output.append("\"" + root->value + "\"\n"); //no comma
+                else
+                    output.append("\"" + root->value + "\",\n"); //add comma
+            else { //object or array
+                if (root->type == OBJECT) { //object
+                    output.append("{\n");
+                }
+                else { //array
+                    output.append("[\n");
+                }
+            }
+        }
+    }
+    //looping through children
+    for (int i = 0; i < root->children.size(); ++i) {
+        bool isFinalElement = (i == root->children.size() - 1) ? 1 : 0;
+        printInOrder(root->children[i], format, output, lvl + 1, isFinalElement);
+    }
+    //after
+    if (format == XML_FORMAT)
+        if (root->type != ILLUSION)
+            output.append(getSpace(4 * (lvl - 1)) + "</" + root->name + ">\n");
+        else if (format == JSON_FORMAT) {
+            if (root->type != ILLUSION) {
+                if (root->type == OBJECT) { //object
+                    output.append(getSpace(4 * (lvl)));
+                    if (isFinalElement)
+                        output.append("}\n");
+                    else
+                        output.append("},\n");
+                }
+                else if (root->type == ARRAY) { //array
+                    output.append(getSpace(4 * (lvl)));
+                    if (isFinalElement)
+                        output.append("]\n");
+                    else
+                        output.append("],\n");
+                }
+            }
+        }
+}
+XmlParser::TagTree::TagTree()
+{
+    chain = NULL;
+    currentNode = NULL;
+}
+XmlParser::TagTree::~TagTree()
+{
+    deleteNodes(chain);
+    chain = NULL;
+}
+void XmlParser::TagTree::constructTree(vector<string>& lines)
+{
+    TagNode* illusionParent = new TagNode("illusion");
+    chain = illusionParent;
+    currentNode = chain;
+    for (auto line : lines) {
+        if (line[0] == '<' && line[1] != '/') { //opening tag (new tag)
+            TagNode* tag = new TagNode(getTagName(line)); //creating a new node
+            currentNode->addChild(tag);
+            tag->parent = currentNode;
+            currentNode = tag;
+        }
+        else if (line[0] != '<') { //contains a value
+            currentNode->value = line;
+        }
+        else //contains a closing tag
+            if (currentNode->parent != NULL)
+                currentNode = currentNode->parent;
+    }
+}
+void XmlParser::TagTree::printInOrder(int format, string& output)
+{
+    this->printInOrder(chain, format, output);
 }
