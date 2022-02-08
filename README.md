@@ -35,3 +35,6 @@ C++/CLI
 * Decompressing XML
 * Visualizing Followers
 * Network Analysis
+* Post Search
+* Recommend Followers
+* Get Mutual Friends
