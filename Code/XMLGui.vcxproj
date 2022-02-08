@@ -124,8 +124,6 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="MainForm.cpp" />
     <ClCompile Include="Mutual.cpp" />
-    <ClCompile Include="Queries.cpp" />
-    <ClCompile Include="SingleInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
@@ -136,7 +134,6 @@
     <ClInclude Include="CustomMessageBox.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="ManagedXmlParser.h" />
     <ClInclude Include="Mutual.h">
       <FileType>CppForm</FileType>
     </ClInclude>

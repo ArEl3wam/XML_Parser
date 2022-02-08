@@ -1,7 +1,6 @@
 #pragma once
 #include"Entity.h"
 #include"Queries.h"
-#include"ManagedXmlParser.h"
 #include"Graph.h"
 #include <msclr\marshal_cppstd.h>
 #include"CustomMessageBox.h"
@@ -812,11 +811,6 @@ namespace XMLGui {
 		{
 			parser.deleteNewLines();
 			parser.extractData();
-			//shared_ptr<XmlParser> sp(&parser);
-			////mover
-			////Saver x;
-			////x.setParser(parser);
-			//Queries^ queries = gcnew Queries(sp);
 			Queries^ queries = gcnew Queries();
 			queries->ShowDialog();
 			return;

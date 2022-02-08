@@ -43,7 +43,7 @@ public: Void makeGraph(String^ text)
 {
 	String^ pathdot = path + "\\image.dt";
 	String^ pathpng = path + "\\graph.png";
-	data = "digraph G { " + text + "}";
+	data = "digraph G { \nsize = \"5!\"\n" + text + "}";
 	this->generateDot(pathdot, pathpng);
 }
 public: Void openGraph()

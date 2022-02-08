@@ -45,12 +45,12 @@ namespace Entity
         };
         class TagTree {
             //data field
-            TagNode* chain;
             TagNode* currentNode;
             void deleteNodes(TagNode* root);
-            void setTypes(TagNode* root);
             void printInOrder(TagNode* root, int format, string& output, int lvl = 0, bool isFinalElement = 1);
         public:
+            TagNode* chain;
+            void setTypes(TagNode* root);
             TagTree();
             ~TagTree();
             void constructTree(vector<string>& lines);
@@ -139,7 +139,7 @@ namespace Entity
         vector<string>lines;
         string reformatted;
         string temp;
-        TagTree* tagTree;
+        public: TagTree* tagTree;
         int freq[MAXASCII] = { 0 };
         priority_queue<Node*, vector<Node*>, compare>pq;
         vector<myPair<string, string>> pairs;

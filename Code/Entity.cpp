@@ -735,6 +735,7 @@ void XmlParser::printJson() {
     toLines();
     tagTree = new TagTree();
     tagTree->constructTree(lines);
+    tagTree->setTypes(tagTree->chain);
     tagTree->printInOrder(JSON_FORMAT, json);
     tagTree->~TagTree();
     json.append("}");
@@ -1378,11 +1379,8 @@ void XmlParser::TagTree::setTypes(TagNode* root)
 }
 void XmlParser::TagTree::printInOrder(TagNode* root, int format, string& output, int lvl, bool isFinalElement)
 {
-    //corner case 
     if (root == NULL)
         return;
-    //target case
-    this->setTypes(chain); //initial process O(n)
     chain->type = ILLUSION;
     if (format == XML_FORMAT) {
         if (root->type != ILLUSION) {
@@ -1416,27 +1414,28 @@ void XmlParser::TagTree::printInOrder(TagNode* root, int format, string& output,
         printInOrder(root->children[i], format, output, lvl + 1, isFinalElement);
     }
     //after
-    if (format == XML_FORMAT)
+    if (format == XML_FORMAT) {
         if (root->type != ILLUSION)
             output.append(getSpace(4 * (lvl - 1)) + "</" + root->name + ">\n");
-        else if (format == JSON_FORMAT) {
-            if (root->type != ILLUSION) {
-                if (root->type == OBJECT) { //object
-                    output.append(getSpace(4 * (lvl)));
-                    if (isFinalElement)
-                        output.append("}\n");
-                    else
-                        output.append("},\n");
-                }
-                else if (root->type == ARRAY) { //array
-                    output.append(getSpace(4 * (lvl)));
-                    if (isFinalElement)
-                        output.append("]\n");
-                    else
-                        output.append("],\n");
-                }
+    }
+    else if (format == JSON_FORMAT) {
+        if (root->type != ILLUSION) {
+            if (root->type == OBJECT) { //object
+                output.append(getSpace(4 * (lvl)));
+                if (isFinalElement)
+                    output.append("}\n");
+                else
+                    output.append("},\n");
+            }
+            else if (root->type == ARRAY) { //array
+                output.append(getSpace(4 * (lvl)));
+                if (isFinalElement)
+                    output.append("]\n");
+                else
+                    output.append("],\n");
             }
         }
+    }
 }
 XmlParser::TagTree::TagTree()
 {

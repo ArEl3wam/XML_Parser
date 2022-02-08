@@ -39,13 +39,14 @@ namespace XMLGui {
 	private: System::Windows::Forms::RichTextBox^ Input;
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::Button^ ok;
+	private: System::Windows::Forms::Button^ button1;
 	protected:
 
 	private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -57,6 +58,7 @@ namespace XMLGui {
 			this->Input = (gcnew System::Windows::Forms::RichTextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->ok = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// Input
@@ -96,13 +98,30 @@ namespace XMLGui {
 			this->ok->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->ok->ForeColor = System::Drawing::Color::White;
-			this->ok->Location = System::Drawing::Point(271, 139);
+			this->ok->Location = System::Drawing::Point(95, 139);
 			this->ok->Name = L"ok";
 			this->ok->Size = System::Drawing::Size(150, 30);
 			this->ok->TabIndex = 7;
-			this->ok->Text = L"Search";
+			this->ok->Text = L"SEARCH";
 			this->ok->UseVisualStyleBackColor = false;
 			this->ok->Click += gcnew System::EventHandler(this, &SingleInput::ok_Click);
+			// 
+			// button1
+			// 
+			this->button1->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(42)), static_cast<System::Int32>(static_cast<System::Byte>(187)),
+				static_cast<System::Int32>(static_cast<System::Byte>(153)));
+			this->button1->FlatAppearance->BorderSize = 0;
+			this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+			this->button1->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->button1->ForeColor = System::Drawing::Color::White;
+			this->button1->Location = System::Drawing::Point(443, 139);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(150, 30);
+			this->button1->TabIndex = 8;
+			this->button1->Text = L"BACK";
+			this->button1->UseVisualStyleBackColor = false;
+			this->button1->Click += gcnew System::EventHandler(this, &SingleInput::button1_Click);
 			// 
 			// SingleInput
 			// 
@@ -111,6 +130,7 @@ namespace XMLGui {
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(46)), static_cast<System::Int32>(static_cast<System::Byte>(51)),
 				static_cast<System::Int32>(static_cast<System::Byte>(73)));
 			this->ClientSize = System::Drawing::Size(691, 181);
+			this->Controls->Add(this->button1);
 			this->Controls->Add(this->ok);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->Input);
@@ -118,6 +138,10 @@ namespace XMLGui {
 			this->Name = L"SingleInput";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"SingleInput";
+			this->Load += gcnew System::EventHandler(this, &SingleInput::SingleInput_Load);
+			this->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SingleInput::SingleInput_MouseDown);
+			this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &SingleInput::SingleInput_MouseMove);
+			this->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &SingleInput::SingleInput_MouseUp);
 			this->ResumeLayout(false);
 
 		}
@@ -138,6 +162,29 @@ namespace XMLGui {
 		string x = msclr::interop::marshal_as<std::string>(Input->Text);
 		x.erase(std::remove(x.begin(), x.end(), '\n'), x.end());
 		parser.temp = parser.searchPosts(x);
+		this->Close();
+	}
+	private: bool dragging;
+	private: Point offset;
+	private: System::Void SingleInput_Load(System::Object^ sender, System::EventArgs^ e) {
+		this->dragging = false;
+	}
+	private: System::Void SingleInput_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+		this->dragging = true;
+		this->offset = Point(e->X, e->Y);
+	}
+	private: System::Void SingleInput_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+		if (this->dragging)
+		{
+			Point currentScreenPos = PointToScreen(e->Location);
+			Location = Point(currentScreenPos.X - this->offset.X,
+				currentScreenPos.Y - this->offset.Y);
+		}
+	}
+	private: System::Void SingleInput_MouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+		this->dragging = false;
+	}
+	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		this->Close();
 	}
 };

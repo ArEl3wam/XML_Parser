@@ -308,7 +308,7 @@ namespace XMLGui {
 		Output->Text = marshal_as<String^>(parser.temp);
 	}
 	private: System::Void back_Click(System::Object^ sender, System::EventArgs^ e) {
-		this->Hide();
+		this->Close();
 	}
 	};
 }
