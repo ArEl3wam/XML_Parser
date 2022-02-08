@@ -55,6 +55,7 @@ namespace XMLGui {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(SingleInput::typeid));
 			this->Input = (gcnew System::Windows::Forms::RichTextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->ok = (gcnew System::Windows::Forms::Button());
@@ -135,9 +136,10 @@ namespace XMLGui {
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->Input);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Name = L"SingleInput";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"SingleInput";
+			this->Text = L"XMLParser";
 			this->Load += gcnew System::EventHandler(this, &SingleInput::SingleInput_Load);
 			this->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &SingleInput::SingleInput_MouseDown);
 			this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &SingleInput::SingleInput_MouseMove);

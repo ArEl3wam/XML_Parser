@@ -57,6 +57,7 @@ namespace XMLGui {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Mutual::typeid));
 			this->ok = (gcnew System::Windows::Forms::Button());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->Input1 = (gcnew System::Windows::Forms::RichTextBox());
@@ -169,9 +170,10 @@ namespace XMLGui {
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->Input1);
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Name = L"Mutual";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->Text = L"Mutual";
+			this->Text = L"XMLParser";
 			this->Load += gcnew System::EventHandler(this, &Mutual::Mutual_Load);
 			this->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &Mutual::Mutual_MouseDown);
 			this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Mutual::Mutual_MouseMove);
