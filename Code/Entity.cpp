@@ -514,14 +514,12 @@ string XmlParser::getMutualFollowers(string ID1, string ID2)
             return "USER 2 DOES NOT EXIST ON THE NETWORK";
         else if (!firstUserFound && !secondUserFound)
             return "USER 1 AND USER 2 DON'T EXIST ON THE NETWORK";
-
         sort(followers1.begin(), followers1.end());
         sort(followers2.begin(), followers2.end());
-
         for (auto follower : followers1)
             if (isItemFound(follower, followers2) != -1)
-                usersList = usersList + to_string(follower) + " ";
-        return "Mutual users' IDs: \n" + usersList;
+                usersList.append(to_string(follower) + " ");
+        return usersList.empty() ? "NO MUTUAL FOLLOWERS FOUND :(" : "Mutual users' IDs: \n" + usersList;
     }
 }
 string XmlParser::recommendPeople(string id)
