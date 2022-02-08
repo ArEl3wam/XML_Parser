@@ -1,5 +1,7 @@
 #pragma once
 #include"Entity.h"
+#include"Queries.h"
+#include"ManagedXmlParser.h"
 #include"Graph.h"
 #include <msclr\marshal_cppstd.h>
 #include"CustomMessageBox.h"
@@ -30,7 +32,6 @@ namespace XMLGui {
 			//TODO: Add the constructor code here
 			//
 		}
-
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -60,6 +61,7 @@ namespace XMLGui {
 	private: System::Windows::Forms::Label^ label3;
 	private: System::Windows::Forms::Button^ exit;
 	private: System::Windows::Forms::Button^ Visualize;
+	private: System::Windows::Forms::Button^ analysis;
 	protected:
 	private:
 		/// <summary>
@@ -92,6 +94,7 @@ namespace XMLGui {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->Visualize = (gcnew System::Windows::Forms::Button());
+			this->analysis = (gcnew System::Windows::Forms::Button());
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
@@ -114,7 +117,7 @@ namespace XMLGui {
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Left;
 			this->panel1->Location = System::Drawing::Point(0, 0);
 			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(186, 682);
+			this->panel1->Size = System::Drawing::Size(186, 729);
 			this->panel1->TabIndex = 0;
 			// 
 			// exit
@@ -126,7 +129,7 @@ namespace XMLGui {
 			this->exit->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->exit->ForeColor = System::Drawing::Color::White;
-			this->exit->Location = System::Drawing::Point(18, 635);
+			this->exit->Location = System::Drawing::Point(18, 682);
 			this->exit->Name = L"exit";
 			this->exit->Size = System::Drawing::Size(150, 30);
 			this->exit->TabIndex = 10;
@@ -143,7 +146,7 @@ namespace XMLGui {
 			this->decompress->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->decompress->ForeColor = System::Drawing::Color::White;
-			this->decompress->Location = System::Drawing::Point(18, 588);
+			this->decompress->Location = System::Drawing::Point(18, 635);
 			this->decompress->Name = L"decompress";
 			this->decompress->Size = System::Drawing::Size(150, 30);
 			this->decompress->TabIndex = 9;
@@ -160,7 +163,7 @@ namespace XMLGui {
 			this->compress->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->compress->ForeColor = System::Drawing::Color::White;
-			this->compress->Location = System::Drawing::Point(18, 540);
+			this->compress->Location = System::Drawing::Point(18, 588);
 			this->compress->Name = L"compress";
 			this->compress->Size = System::Drawing::Size(150, 30);
 			this->compress->TabIndex = 8;
@@ -308,11 +311,12 @@ namespace XMLGui {
 				static_cast<System::Byte>(0)));
 			this->Input->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(200)), static_cast<System::Int32>(static_cast<System::Byte>(200)),
 				static_cast<System::Int32>(static_cast<System::Byte>(200)));
-			this->Input->Location = System::Drawing::Point(192, 38);
+			this->Input->Location = System::Drawing::Point(192, 49);
 			this->Input->Name = L"Input";
-			this->Input->Size = System::Drawing::Size(370, 627);
+			this->Input->Size = System::Drawing::Size(370, 663);
 			this->Input->TabIndex = 2;
 			this->Input->Text = L"";
+			this->Input->TextChanged += gcnew System::EventHandler(this, &MainForm::Input_TextChanged);
 			// 
 			// Output
 			// 
@@ -323,38 +327,38 @@ namespace XMLGui {
 				static_cast<System::Byte>(0)));
 			this->Output->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(200)), static_cast<System::Int32>(static_cast<System::Byte>(200)),
 				static_cast<System::Int32>(static_cast<System::Byte>(200)));
-			this->Output->Location = System::Drawing::Point(569, 38);
+			this->Output->Location = System::Drawing::Point(569, 49);
 			this->Output->Name = L"Output";
 			this->Output->ReadOnly = true;
-			this->Output->Size = System::Drawing::Size(370, 627);
+			this->Output->Size = System::Drawing::Size(370, 663);
 			this->Output->TabIndex = 3;
 			this->Output->Text = L"";
 			// 
 			// label1
 			// 
-			this->label1->AutoSize = true;
 			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 18, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label1->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(158)), static_cast<System::Int32>(static_cast<System::Byte>(161)),
 				static_cast<System::Int32>(static_cast<System::Byte>(176)));
-			this->label1->Location = System::Drawing::Point(186, 0);
+			this->label1->Location = System::Drawing::Point(327, 8);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(87, 36);
+			this->label1->Size = System::Drawing::Size(103, 36);
 			this->label1->TabIndex = 4;
 			this->label1->Text = L"Input";
+			this->label1->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			// 
 			// label3
 			// 
-			this->label3->AutoSize = true;
 			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 18, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label3->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(158)), static_cast<System::Int32>(static_cast<System::Byte>(161)),
 				static_cast<System::Int32>(static_cast<System::Byte>(176)));
-			this->label3->Location = System::Drawing::Point(563, 0);
+			this->label3->Location = System::Drawing::Point(694, 8);
 			this->label3->Name = L"label3";
-			this->label3->Size = System::Drawing::Size(110, 36);
+			this->label3->Size = System::Drawing::Size(125, 36);
 			this->label3->TabIndex = 6;
 			this->label3->Text = L"Output";
+			this->label3->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			// 
 			// Visualize
 			// 
@@ -373,13 +377,31 @@ namespace XMLGui {
 			this->Visualize->UseVisualStyleBackColor = false;
 			this->Visualize->Click += gcnew System::EventHandler(this, &MainForm::Visualize_Click);
 			// 
+			// analysis
+			// 
+			this->analysis->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(42)), static_cast<System::Int32>(static_cast<System::Byte>(187)),
+				static_cast<System::Int32>(static_cast<System::Byte>(153)));
+			this->analysis->FlatAppearance->BorderSize = 0;
+			this->analysis->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+			this->analysis->Font = (gcnew System::Drawing::Font(L"Nirmala UI", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->analysis->ForeColor = System::Drawing::Color::White;
+			this->analysis->Location = System::Drawing::Point(18, 541);
+			this->analysis->Name = L"analysis";
+			this->analysis->Size = System::Drawing::Size(150, 30);
+			this->analysis->TabIndex = 12;
+			this->analysis->Text = L"ANALYSIS";
+			this->analysis->UseVisualStyleBackColor = false;
+			this->analysis->Click += gcnew System::EventHandler(this, &MainForm::analysis_Click);
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(46)), static_cast<System::Int32>(static_cast<System::Byte>(51)),
 				static_cast<System::Int32>(static_cast<System::Byte>(73)));
-			this->ClientSize = System::Drawing::Size(951, 682);
+			this->ClientSize = System::Drawing::Size(951, 729);
+			this->Controls->Add(this->analysis);
 			this->Controls->Add(this->Visualize);
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->label1);
@@ -399,7 +421,6 @@ namespace XMLGui {
 			this->panel1->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->ResumeLayout(false);
-			this->PerformLayout();
 
 		}
 #pragma endregion
@@ -774,5 +795,40 @@ namespace XMLGui {
 			return;
 		}
 	}
+	private: System::Void analysis_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (Input->Text == "")
+		{
+			MessageBox::Show("Input is empty", "Please enter text in input field", MessageBoxButtons::OK, MessageBoxIcon::Warning);
+			return;
+		}
+		if (!Input->Text->EndsWith(">") && !Input->Text->StartsWith("<"))
+		{
+			MessageBox::Show("Please enter XML file in input field", "Input is not XML file", MessageBoxButtons::OK, MessageBoxIcon::Warning);
+			return;
+		}
+		parser.setXml(msclr::interop::marshal_as<std::string>(Input->Text));
+		parser.checkErrors();
+		if (parser.errors.empty())
+		{
+			parser.deleteNewLines();
+			parser.extractData();
+			//shared_ptr<XmlParser> sp(&parser);
+			////mover
+			////Saver x;
+			////x.setParser(parser);
+			//Queries^ queries = gcnew Queries(sp);
+			Queries^ queries = gcnew Queries();
+			queries->ShowDialog();
+			return;
+		}
+		MessageBox::Show("Please use Validate or Correct buttons to fix the errors and try again", "Input is invalid", MessageBoxButtons::OK, MessageBoxIcon::Warning);
+	}
+	private: System::Void Input_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+		if (!Input->Text->Length)
+		{
+			Input->SelectAll();
+			Input->SelectionColor = defColor;
+		}
+	} 
 	};
 }

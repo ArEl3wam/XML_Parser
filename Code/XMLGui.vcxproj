@@ -123,6 +123,9 @@
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="MainForm.cpp" />
+    <ClCompile Include="Mutual.cpp" />
+    <ClCompile Include="Queries.cpp" />
+    <ClCompile Include="SingleInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
@@ -133,7 +136,17 @@
     <ClInclude Include="CustomMessageBox.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="ManagedXmlParser.h" />
+    <ClInclude Include="Mutual.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="Queries.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SingleInput.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="Splash.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -144,6 +157,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CustomMessageBox.resx">
       <DependentUpon>CustomMessageBox.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Mutual.resx">
+      <DependentUpon>Mutual.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries.resx">
+      <DependentUpon>Queries.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SingleInput.resx">
+      <DependentUpon>SingleInput.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Splash.resx">
       <DependentUpon>Splash.h</DependentUpon>

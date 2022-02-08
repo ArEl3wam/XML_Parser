@@ -14,7 +14,6 @@ namespace Entity
     //the xml handling class
     class XmlParser {
     public:
-
         class TagNode {
         public:
             //data fields
@@ -139,6 +138,7 @@ namespace Entity
         string xmlFormatted;
         vector<string>lines;
         string reformatted;
+        string temp;
         TagTree* tagTree;
         int freq[MAXASCII] = { 0 };
         priority_queue<Node*, vector<Node*>, compare>pq;
