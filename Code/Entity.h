@@ -20,10 +20,11 @@ namespace Entity
             string name;
             string value;
             int type;
+            bool isArrayElement;
             vector<TagNode*> children;
             TagNode* parent;
             //constructor
-            TagNode(string name, string value = "", int type = PRIMITIVE);
+            TagNode(string name, string value = "", int type = PRIMITIVE, bool isArrayElement = 0);
             void setName(string name);
             void setValue(string value);
             void setParent(TagNode* parent);

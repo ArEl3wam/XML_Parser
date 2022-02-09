@@ -940,7 +940,8 @@ void XmlParser::fillColors() {
                 target = FOLLOWER_COLOR;
             else if (tagName == "followers")
                 target = FOLLOWERS_COLOR;
-            //cout << tagFrame << endl;
+            else
+                break;
             colors[target].push_back(createPair(start, end));
         }
     }
@@ -1305,12 +1306,13 @@ void XmlParser::MultiSet::erase(SetNode* dataPointer)
     string data = dataPointer->data;
     this->chain = erase(data, dataPointer, chain);
 }
-XmlParser::TagNode::TagNode(string name, string value, int type)
+XmlParser::TagNode::TagNode(string name, string value, int type, bool isArrayElement)
 {
     this->name = name;
     this->value = value;
     this->type = type;
     this->parent = NULL;
+    this->isArrayElement = isArrayElement;
 }
 void XmlParser::TagNode::setName(string name)
 {
@@ -1369,11 +1371,16 @@ void XmlParser::TagTree::setTypes(TagNode* root)
     if (root->children.empty())
         root->type = PRIMITIVE;
     else {
-        if (root->children.size() == 1 || root->children[0]->name != root->children[1]->name)
+        if (root->children.size() == 1 || root->children[0]->name != root->children[1]->name) {
             root->type = OBJECT;
-        else
+        }
+        else {
             root->type = ARRAY;
+            for (auto child : root->children)
+                child->isArrayElement = 1;
+        }
     }
+    //cout << root->name << " " << root->type << endl;
     for (auto child : root->children)
         setTypes(child);
 }
@@ -1392,18 +1399,34 @@ void XmlParser::TagTree::printInOrder(TagNode* root, int format, string& output,
     //printing in json
     else if (format == JSON_FORMAT) {
         if (root->type != ILLUSION) {
-            output.append(getSpace(4 * (1 + (lvl - 1))) + "\"" + root->name + "\": "); //"name":(-)
-            if (root->type == PRIMITIVE) //primitive
-                if (isFinalElement)
-                    output.append("\"" + root->value + "\"\n"); //no comma
-                else
-                    output.append("\"" + root->value + "\",\n"); //add comma
+            if (!root->isArrayElement) {
+                output.append(getSpace(4 * (1 + (lvl - 1))) + "\"" + root->name + "\": "); //"name":(-)
+            }
+            if (root->type == PRIMITIVE) {//primitive
+                if (root->value.empty()) {
+                    root->value = "[]";
+                    if (isFinalElement)
+                        output.append(root->value + "\n"); //no comma
+                    else
+                        output.append(root->value + ",\n"); //add comma
+                }
+                else {
+                    if (isFinalElement)
+                        output.append("\"" + root->value + "\"\n"); //no comma
+                    else
+                        output.append("\"" + root->value + "\",\n"); //add comma
+                }
+            }
             else { //object or array
                 if (root->type == OBJECT) { //object
-                    output.append("{\n");
+                    if (!root->isArrayElement)
+                        output.append("\n");
+                    output.append(getSpace(4 * (1 + (lvl - 1))) + "{\n");
                 }
                 else { //array
-                    output.append("[\n");
+                    if (!root->isArrayElement)
+                        output.append("\n");
+                    output.append(getSpace(4 * (1 + (lvl - 1))) + "[\n");
                 }
             }
         }

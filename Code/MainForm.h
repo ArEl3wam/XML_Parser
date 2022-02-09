@@ -656,8 +656,6 @@ namespace XMLGui {
 			MessageBox::Show("Please use Validate or Correct buttons to fix the errors and try again", "Input is invalid", MessageBoxButtons::OK, MessageBoxIcon::Warning);
 			return;
 		}
-		parser.deleteNewLines();
-		parser.extractData();
 		parser.getXmlFormatted();
 		parser.fillColors();
 		Input->Text = marshal_as<String^>(parser.xmlFormatted);
