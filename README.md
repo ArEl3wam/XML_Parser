@@ -20,10 +20,13 @@ The project is an XML Editor that can do various operations on XML files.
 
 ## Background
 
-An XML editor (Windows Application) to help understanding data of XML files. User can load XML file and choose from multiple operations including error detection and correction, compression and decompression, beautifying, converting to JSON and many other operations.
-C++,
+An XML editor (Windows Application) to help understanding data of XML files. User can load XML files and choose from multiple operations, some of them are generic to
+any XML (error detection, converting XML to JSON, beautifying, compression and decompression), and others are for a certain XML
+scheme (error correction, visualizing followers graph, network analysis, post search, recommending followers and getting mutual followers).
+An example of the scheme can be found through this link: https://drive.google.com/file/d/1_GeHIjYQZEAZNu6ZxdXEotPnHhiKnaWn/view
+
 ## Technologies
-C++/CLI
+C++, C++/CLI
 
 ## Features
 * Browsing XML Files
